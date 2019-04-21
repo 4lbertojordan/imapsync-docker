@@ -58,4 +58,7 @@ RUN git clone git://github.com/imapsync/imapsync.git \
     && make install \ 
     && imapsync -v
 
+COPY imap-sync.sh /bin/    
+
+ENTRYPOINT [ "/bin/imap-sync.sh" ]
 
