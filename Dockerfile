@@ -1,64 +1,53 @@
-FROM ubuntu:20.04
+FROM debian:buster
 
-#Pre-install
-RUN apt update -y && apt upgrade -y
+LABEL   maintainer="Gilles LAMIRAL <gilles@lamiral.info>" \
+        description="Imapsync" \
+        documentation="https://imapsync.lamiral.info/#doc"
 
-##Install dependecies
-RUN apt-get install -y \
-git \
-makepasswd \
-rcs \
-perl-doc \
-libio-tee-perl \
-libmail-imapclient-perl \
-libdigest-md5-file-perl \
-libterm-readkey-perl \
-libfile-copy-recursive-perl \
-build-essential \
-make \
-automake \
-libunicode-string-perl \
-libauthen-ntlm-perl \
-libcrypt-ssleay-perl \
-libdigest-hmac-perl \
-libfile-copy-recursive-perl \
-libio-compress-perl \
-libio-socket-inet6-perl \
-libio-socket-ssl-perl \
-libio-tee-perl \
-libmodule-scandeps-perl \
-libnet-ssleay-perl \
-libpar-packer-perl \
-libreadonly-perl \
-libterm-readkey-perl \
-libtest-pod-perl \
-libtest-simple-perl \
-libunicode-string-perl \
-liburi-perl \
-libcam-pdf-perl \
-libssl-dev \
-cpanminus
+RUN set -xe                 && \
+  apt-get update            && \
+  apt-get install -y           \
+  libauthen-ntlm-perl          \
+  libcgi-pm-perl               \
+  libcrypt-openssl-rsa-perl    \
+  libdata-uniqid-perl          \
+  libencode-imaputf7-perl      \
+  libfile-copy-recursive-perl  \
+  libfile-tail-perl            \
+  libio-socket-inet6-perl      \
+  libio-socket-ssl-perl        \
+  libio-tee-perl               \
+  libhtml-parser-perl          \
+  libjson-webtoken-perl        \
+  libmail-imapclient-perl      \
+  libparse-recdescent-perl     \
+  libmodule-scandeps-perl      \
+  libreadonly-perl             \
+  libregexp-common-perl        \
+  libsys-meminfo-perl          \
+  libterm-readkey-perl         \
+  libtest-mockobject-perl      \
+  libtest-pod-perl             \
+  libunicode-string-perl       \
+  liburi-perl                  \
+  libwww-perl                  \
+  libtest-nowarnings-perl      \
+  libtest-deep-perl            \
+  libtest-warn-perl            \
+  make                         \
+  cpanminus                    \
+  wget
 
-#Install CPAN
-RUN cpanm Mail::IMAPClient \
-JSON::WebToken \
-Test::MockObject \
-Unicode::String \
-Data::Uniqid \
-Crypt::OpenSSL::RSA \
-Dist::CheckConflicts \
-JSON::WebToken::Crypt::RSA \
-Regexp::Common \
-Sys::MemInfo
+RUN wget -N https://imapsync.lamiral.info/imapsync && \
+  mv imapsync /usr/bin/imapsync                    && \
+  chmod +x /usr/bin/imapsync
 
-#Install Imapcsync
-RUN git clone git://github.com/imapsync/imapsync.git \
-    && cd imapsync \
-    && mkdir dist \
-    && make install \ 
-    && imapsync -v
+USER nobody:nogroup
 
-COPY imap-sync.sh /bin/    
+ENV HOME /var/tmp/
 
-ENTRYPOINT [ "/bin/imap-sync.sh" ]
+WORKDIR /var/tmp/
 
+STOPSIGNAL SIGINT
+
+CMD ["/usr/bin/imapsync"]

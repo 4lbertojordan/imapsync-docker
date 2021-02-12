@@ -1,35 +1,45 @@
 #!/bin/bash
 
-#Host to sync
-sourcehost=host1.host.com
-destinyhost=host2.host.com
+############# CONFIGURATION ###########
+ACCOUNTS=$3
+SRCHOST=$1
+DSTHOST=$2
+#######################################
 
-#SSL sync
+EXTRALOG=sync.log
+TSFORMAT="%Y-%m-%d %H:%M:%S"
 
-sslhost1=ssl1
-sslhost2=ssl2
+# loop through all accounts
+grep -ve '^#.*' $ACCOUNTS | while read SRCUSER SRCPW DSTUSER DSTPW
+do
+    MESSAGE="[`date +"$TSFORMAT"`] synchronizing $SRCUSER@$SRCHOST to $DSTUSER@$DSTHOST ..."
+    echo $MESSAGE
+    echo $MESSAGE >> $EXTRALOG
 
-#Accounts to sync
+    # security: temporarly store passwords to files in order 
+    # not to pass them directly by command line option
+    echo -n $SRCPW > imap-secret-src
+    echo -n $DSTPW > imap-secret-dst
 
-account1=mail1@host1.com
-password1=mailpassword1
-account2=mail2@host1.com
-password2=mailpassword2
-account3=mail3@host1.com
-password3=mailpassword3
-account4=mail4@host1.com
-password4=mailpassword4
-account5=mail5@host1.com
-password5=mailpassword5
-account6=mail6@host1.com
-password6=mailpassword6
+    ## VARIANT 1) source host supports SSL/TLS (imap port 993)
+    docker run --rm --name $2 -v $PWD:/var/tmp/ imapsync:local imapsync --host1 $SRCHOST --tls1 --port1 143 --authmech1 PLAIN --user1 $SRCUSER --passfile1 imap-secret-src \
+             --host2 $DSTHOST --tls2 --port2 143 --authmech2 PLAIN --user2 $DSTUSER --passfile2 imap-secret-dst
 
+    ## VARIANT 2) source host does not support SSL/TLS (imap port 143)
+    #imapsync --host1 $SRCHOST        --port1 143 --authmech1 PLAIN --user1 $SRCUSER --passfile1 imap-secret-src \
+    #         --host2 $DSTHOST --ssl2 --port2 993 --authmech2 PLAIN --user2 $DSTUSER --passfile2 imap-secret-dst \
+    #         --delete2 --delete2folders
 
-imapsync --host1 $sourcehost \
-	   --user1 $account1 \
-	   --password1 $password1 \
-	   --$ssl1 \
-	   --host2 $destinyhost \
-	   --user2 $account1 \
-	   --password2 $password1 \
-	   --$ssl2
+    ## VARIANT 3) source host has different INBOX prefix, transform it while syncing
+    #imapsync --host1 $SRCHOST --ssl1 --port1 993 --authmech1 PLAIN --user1 $SRCUSER --passfile1 imap-secret-src \
+    #         --host2 $DSTHOST --ssl2 --port2 993 --authmech2 PLAIN --user2 $DSTUSER --passfile2 imap-secret-dst \
+    #         --delete2 --delete2folders
+    #         --regextrans2 "s/INBOX.INBOX/INBOX/"
+
+    rm -f imap-secret-*
+done
+
+MESSAGE="[`date +"$TSFORMAT"`] imapsync sucessfully completed!"
+echo $MESSAGE
+echo $MESSAGE >> $EXTRALOG
+exit 0
