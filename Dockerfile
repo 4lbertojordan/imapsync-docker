@@ -1,9 +1,5 @@
 FROM debian:buster
 
-LABEL   maintainer="Gilles LAMIRAL <gilles@lamiral.info>" \
-        description="Imapsync" \
-        documentation="https://imapsync.lamiral.info/#doc"
-
 RUN set -xe                 && \
   apt-get update            && \
   apt-get install -y           \
