@@ -35,7 +35,7 @@ RUN set -xe                 && \
   wget
 
 RUN wget -N https://imapsync.lamiral.info/imapsync && \
-  mv imapsync /usr/bin/imapsync                    && \
+  mv imapsync /usr/bin/imapsync && \
   chmod +x /usr/bin/imapsync
 
 USER nobody:nogroup
