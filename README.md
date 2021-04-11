@@ -2,7 +2,8 @@
 
 Migrate your email boxes with this tool and Docker.
 
-## 1.- Create a plain text fail with this format:
+## 1.- Create a plain text file with this format:
+mailboxes.list
 ```
 mailbox1@domain.tld SOURCEPASSWORD mailbox1@domain.tld DESTINATIONPASSWORD
 mailbox2@domain.tld SOURCEPASSWORD mailbox2@domain.tld DESTINATIONPASSWORD
