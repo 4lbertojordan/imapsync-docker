@@ -22,8 +22,8 @@ do
     echo -n $DSTPW > imap-secret-dst
 
     ## VARIANT 1) source host supports SSL/TLS (imap port 993)
-    docker run --rm --name $2 -v $PWD:/var/tmp/ imapsync:local imapsync --host1 $SRCHOST --tls1 --port1 143 --authmech1 PLAIN --user1 $SRCUSER --passfile1 imap-secret-src \
-             --host2 $DSTHOST --tls2 --port2 143 --authmech2 PLAIN --user2 $DSTUSER --passfile2 imap-secret-dst
+    docker run --rm -v "$PWD":/var/tmp/ imapsync:local imapsync --host1 $SRCHOST --tls1 --port1 143 --authmech1 PLAIN --user1 $SRCUSER --passfile1 imap-secret-src \
+             --host2 $DSTHOST --tls2 --port2 993 --authmech2 PLAIN --user2 $DSTUSER --passfile2 imap-secret-dst
 
     ## VARIANT 2) source host does not support SSL/TLS (imap port 143)
     #imapsync --host1 $SRCHOST        --port1 143 --authmech1 PLAIN --user1 $SRCUSER --passfile1 imap-secret-src \
